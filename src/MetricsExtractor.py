@@ -7,11 +7,17 @@ import pandas as pd
 # Step 1: Configure these variables for your project
 CONFIG = {
     # Path to your local Git repository
-    "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
+
+    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
+    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
+    "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
     # The folder containing the auto-generated code you want to analyze
-    "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
+    # "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
+    "TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
     # Main branch to analyze
     "BRANCH": "master",
+    # ADD THIS: List of file extensions to include in the analysis
+    "TARGET_EXTENSIONS": [".c", ".h", ".java", ".hpp", ".di", ".uml", ".notation", ".genmodel"],
     # Keywords to classify commits. Case-insensitive.
     "COMMIT_KEYWORDS": {
         "feat": ["feat", "feature"],
@@ -43,30 +49,30 @@ def count_sloc(file_path):
 
 def analyze_repository():
     """
-    Analyzes the Git repository to extract metrics on churn, commits, and SLoC.
+    Analyzes the Git repository to extract metrics on churn, commits, and SLoC,
+    now with per-file tracking.
     """
     print("🚀 Starting repository analysis...")
 
     # --- Data Collection Variables ---
-    total_churn = 0
+    # This new dictionary will store all metrics per file
+    file_metrics = {}
+
     commit_counts = {key: 0 for key in CONFIG["COMMIT_KEYWORDS"]}
     commit_counts["other"] = 0
-    churn_by_file = {}
     chronological_data = []
 
-    # --- Pydriller Repository Mining ---
-    # We only analyze commits that modify the target folder for efficiency
     repo_miner = Repository(
         CONFIG["REPO_PATH"],
         only_in_branch=CONFIG["BRANCH"]
+        # only_in_path=CONFIG["TARGET_FOLDER"]
     )
-
 
     for commit in repo_miner.traverse_commits():
         commit_classified = False
         commit_churn = 0
 
-        # Classify commit based on message
+        # Classify commit
         msg = commit.msg.lower()
         for key, keywords in CONFIG["COMMIT_KEYWORDS"].items():
             if any(keyword in msg for keyword in keywords):
@@ -76,43 +82,57 @@ def analyze_repository():
         if not commit_classified:
             commit_counts["other"] += 1
 
-        # Calculate churn within the target folder
+        # Calculate churn per file
         for mod in commit.modified_files:
-            # Ensure we are only looking at files within the target folder
-            #if mod.new_path and mod.new_path.startswith(CONFIG["TARGET_FOLDER"]):
-                current_churn = mod.added_lines + mod.deleted_lines
-                total_churn += current_churn
-                commit_churn += current_churn
+            # Check if the file matches our target folder and extensions
+            if (mod.new_path and
+                    # mod.new_path.startswith(CONFIG["TARGET_FOLDER"]) and
+                    mod.new_path.endswith(tuple(CONFIG["TARGET_EXTENSIONS"]))):
 
-                # Track churn per file (hotspots)
-                churn_by_file[mod.new_path] = churn_by_file.get(mod.new_path, 0) + current_churn
+                # Ensure file entry exists in our dictionary
+                if mod.new_path not in file_metrics:
+                    file_metrics[mod.new_path] = {'churn': 0, 'sloc': 0, 'ratio': 0}
+
+                current_churn = mod.added_lines + mod.deleted_lines
+                file_metrics[mod.new_path]['churn'] += current_churn
+                commit_churn += current_churn
 
         chronological_data.append({
             "date": commit.committer_date,
             "churn": commit_churn
         })
 
-    print("✅ Analysis complete.")
+    print("✅ Churn analysis complete. Calculating SLoC for relevant files...")
 
-    # --- Calculate Current SLoC ---
-    total_sloc = 0
-    target_path = os.path.join(CONFIG["REPO_PATH"], CONFIG["TARGET_FOLDER"])
-    if os.path.isdir(target_path):
-        for root, _, files in os.walk(target_path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                total_sloc += count_sloc(file_path)
+    # --- Calculate Current SLoC for tracked files ---
+    repo_root = CONFIG["REPO_PATH"]
+    for file_path_relative in list(file_metrics.keys()):
+        # We only calculate SLoC for files that had churn
+        full_path = os.path.join(repo_root, file_path_relative)
 
-    # --- Final Metric Calculations ---
+        if os.path.exists(full_path):
+            sloc = count_sloc(full_path)
+            file_metrics[file_path_relative]['sloc'] = sloc
+        else:
+            # File was deleted, so its SLoC is 0
+            file_metrics[file_path_relative]['sloc'] = 0
+
+    # --- Final Metric Calculations (Overall and Per-File) ---
+    total_sloc = sum(data['sloc'] for data in file_metrics.values())
+    total_churn = sum(data['churn'] for data in file_metrics.values())
     refactoring_ratio = total_churn / total_sloc if total_sloc > 0 else 0
 
-    # --- Prepare results for returning ---
+    # Calculate per-file ratio
+    for data in file_metrics.values():
+        if data['sloc'] > 0:
+            data['ratio'] = data['churn'] / data['sloc']
+
     results = {
         "total_sloc": total_sloc,
         "total_churn": total_churn,
         "refactoring_ratio": refactoring_ratio,
         "commit_counts": commit_counts,
-        "churn_by_file": churn_by_file,
+        "file_metrics": file_metrics,
         "chronological_data": chronological_data
     }
 
@@ -120,19 +140,36 @@ def analyze_repository():
 
 
 def print_summary(results):
-    """Prints a formatted summary of the analysis results."""
-    print("\n" + "=" * 50)
+    """Prints a formatted summary including per-file metrics."""
+    print("\n" + "=" * 60)
     print("📊 MBD GIT ANALYSIS REPORT")
-    print("=" * 50)
-    print(f"Total SLoC in '{CONFIG['TARGET_FOLDER']}': {results['total_sloc']:,}")
+    print("=" * 60)
+    print("--- Overall Metrics ---")
+    print(f"Total SLoC in '{CONFIG['TARGET_FOLDER']}' (matching extensions): {results['total_sloc']:,}")
     print(f"Total Code Churn (Lines Added + Deleted): {results['total_churn']:,}")
-    print(f"Refactoring Ratio (Churn / SLoC): {results['refactoring_ratio']:.2%}")
-    print("-" * 50)
-    print("Commit Classification:")
+    print(f"Overall Refactoring Ratio (Churn / SLoC): {results['refactoring_ratio']:.2%}")
+    print("\n--- Commit Classification ---")
     for key, count in results['commit_counts'].items():
         if count > 0:
             print(f"  - {key.capitalize():<10}: {count} commits")
-    print("=" * 50)
+
+    print("\n--- Top 5 Files by Refactoring Ratio (Churn/SLoC) ---")
+    # Sort files by refactoring ratio, descending
+    sorted_files = sorted(
+        results['file_metrics'].items(),
+        key=lambda item: item[1]['ratio'],
+        reverse=True
+    )
+
+    if not sorted_files:
+        print("No files with churn were found to analyze.")
+    else:
+        print(f"{'File':<60} {'Ratio':<10} {'Churn':<10} {'SLoC':<10}")
+        print("-" * 90)
+        for path, data in sorted_files[:5]:
+            ratio_str = f"{data['ratio']:.2%}"
+            print(f"{path:<60} {ratio_str:<10} {data['churn']:,<10} {data['sloc']:,<10}")
+    print("=" * 60)
 
 
 def create_plots(results):
@@ -187,6 +224,24 @@ def create_plots(results):
         plt.tight_layout()
         plt.savefig('file_hotspots.png')
         print("Saved 'file_hotspots.png'")
+
+    # --- NEW Plot: Top 5 Files by Refactoring Ratio ---
+    file_metrics = results.get('file_metrics', {})
+    if file_metrics:
+        hotspots_df = pd.DataFrame.from_dict(file_metrics, orient='index')
+        hotspots_df = hotspots_df[hotspots_df['ratio'] > 0].sort_values('ratio', ascending=False).head(5)
+
+        if not hotspots_df.empty:
+            plt.figure(figsize=(12, 8))
+            hotspots_df['ratio'].sort_values().plot(kind='barh', color='coral')
+            plt.title('Top 5 Files by Refactoring Ratio (Churn/SLoC)', fontsize=16, fontweight='bold')
+            plt.xlabel('Refactoring Ratio')
+            plt.ylabel('File Path')
+            # Format x-axis as percentage
+            plt.gca().xaxis.set_major_formatter(plt.FuncFormatter('{:.0%}'.format))
+            plt.tight_layout()
+            plt.savefig('refactoring_ratio_hotspots.png')
+            print("\nSaved 'refactoring_ratio_hotspots.png'")
 
     plt.show()
 

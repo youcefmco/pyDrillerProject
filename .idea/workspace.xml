@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="56ce3b7f-9d77-4c9e-b400-ca50186f8d31" name="Changes" comment="my first pydriller project, listing all commits, and all modification per file">
-      <change afterPath="$PROJECT_DIR$/src/MetricsExtractor.py" afterDir="false" />
+    <list default="true" id="56ce3b7f-9d77-4c9e-b400-ca50186f8d31" name="Changes" comment="fix The first working ploter. had to change back to Repository and to update &quot;for mod in commit.modified_files&quot;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TestPydriller.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/TestPydriller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MetricsExtractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/MetricsExtractor.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,7 +84,7 @@
       <updated>1752056317321</updated>
       <workItem from="1752056317480" duration="393000" />
       <workItem from="1752070910575" duration="9466000" />
-      <workItem from="1752419682195" duration="3866000" />
+      <workItem from="1752419682195" duration="13151000" />
     </task>
     <task id="LOCAL-00001" summary="my first pydriller project">
       <option name="closed" value="true" />
@@ -119,7 +118,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752135257677</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="fix The first working ploter. had to change back to Repository and to update &quot;for mod in commit.modified_files&quot;">
+      <option name="closed" value="true" />
+      <created>1752487397065</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1752487397065</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -128,10 +135,11 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="my first pydriller project" />
     <MESSAGE value="my first pydriller project, listing all commits, and all modification per file" />
-    <option name="LAST_COMMIT_MESSAGE" value="my first pydriller project, listing all commits, and all modification per file" />
+    <MESSAGE value="fix The first working ploter. had to change back to Repository and to update &quot;for mod in commit.modified_files&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix The first working ploter. had to change back to Repository and to update &quot;for mod in commit.modified_files&quot;" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PythonProject$TestPydriller.coverage" NAME="TestPydriller Coverage Results" MODIFIED="1752135664758" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/PythonProject$MetricsExtractor.coverage" NAME="MetricsExtractor Coverage Results" MODIFIED="1752485322497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/PythonProject$MetricsExtractor.coverage" NAME="MetricsExtractor Coverage Results" MODIFIED="1752508537274" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>
