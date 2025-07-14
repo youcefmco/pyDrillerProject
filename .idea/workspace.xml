@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="56ce3b7f-9d77-4c9e-b400-ca50186f8d31" name="Changes" comment="my first pydriller project" />
+    <list default="true" id="56ce3b7f-9d77-4c9e-b400-ca50186f8d31" name="Changes" comment="my first pydriller project, listing all commits, and all modification per file">
+      <change afterPath="$PROJECT_DIR$/src/MetricsExtractor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TestPydriller.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/TestPydriller.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,12 +24,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/youcefmco/pyDrillerProject",
-    "accountId": "fb60f7d3-9ae6-4c25-b75d-24472e76b561"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;youcefmco&quot;
   }
-}]]></component>
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/youcefmco/pyDrillerProject&quot;,
+    &quot;accountId&quot;: &quot;fb60f7d3-9ae6-4c25-b75d-24472e76b561&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
 }</component>
@@ -37,8 +47,10 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.MetricsExtractor.executor": "Run",
     "Python.TestPydriller.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
@@ -47,10 +59,15 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "vcs.Git",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\youce\PycharmProjects\PythonProject\src" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -67,7 +84,8 @@
       <option name="presentableId" value="Default" />
       <updated>1752056317321</updated>
       <workItem from="1752056317480" duration="393000" />
-      <workItem from="1752070910575" duration="2922000" />
+      <workItem from="1752070910575" duration="9466000" />
+      <workItem from="1752419682195" duration="3866000" />
     </task>
     <task id="LOCAL-00001" summary="my first pydriller project">
       <option name="closed" value="true" />
@@ -85,7 +103,23 @@
       <option name="project" value="LOCAL" />
       <updated>1752075210136</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="my first pydriller project, listing all commits, and all modification per file">
+      <option name="closed" value="true" />
+      <created>1752135237914</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1752135237914</updated>
+    </task>
+    <task id="LOCAL-00004" summary="my first pydriller project, listing all commits, and all modification per file">
+      <option name="closed" value="true" />
+      <created>1752135257677</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1752135257677</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -93,9 +127,11 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="my first pydriller project" />
-    <option name="LAST_COMMIT_MESSAGE" value="my first pydriller project" />
+    <MESSAGE value="my first pydriller project, listing all commits, and all modification per file" />
+    <option name="LAST_COMMIT_MESSAGE" value="my first pydriller project, listing all commits, and all modification per file" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/PythonProject$TestPydriller.coverage" NAME="TestPydriller Coverage Results" MODIFIED="1752075013641" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/PythonProject$TestPydriller.coverage" NAME="TestPydriller Coverage Results" MODIFIED="1752135664758" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/PythonProject$MetricsExtractor.coverage" NAME="MetricsExtractor Coverage Results" MODIFIED="1752485322497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>

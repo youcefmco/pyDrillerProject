@@ -13,7 +13,7 @@ for commit in Repository(
 
 #Per‑file granularity
 for commit in Repository(
-        r'C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject'
+        r'C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project'
     ).traverse_commits():
     print("Commit:", commit.hash)
     for m in commit.modified_files:
