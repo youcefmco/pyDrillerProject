@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="56ce3b7f-9d77-4c9e-b400-ca50186f8d31" name="Changes" comment="Add per-file analysis with SLoC and refactoring ratio, update MetricsExtractor paths and configuration.">
+    <list default="true" id="56ce3b7f-9d77-4c9e-b400-ca50186f8d31" name="Changes" comment="Enhance MetricsExtractor with refactoring churn analysis, improve SLoC computation, and update visualization for cumulative and hotspot metrics.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MetricsExtractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/MetricsExtractor.py" afterDir="false" />
     </list>
@@ -84,7 +84,7 @@
       <updated>1752056317321</updated>
       <workItem from="1752056317480" duration="393000" />
       <workItem from="1752070910575" duration="9466000" />
-      <workItem from="1752419682195" duration="34097000" />
+      <workItem from="1752419682195" duration="41974000" />
     </task>
     <task id="LOCAL-00001" summary="my first pydriller project">
       <option name="closed" value="true" />
@@ -134,7 +134,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752508836906</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Enhance MetricsExtractor with refactoring churn analysis, improve SLoC computation, and update visualization for cumulative and hotspot metrics.">
+      <option name="closed" value="true" />
+      <created>1752681820297</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1752681820297</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -145,10 +153,11 @@
     <MESSAGE value="my first pydriller project, listing all commits, and all modification per file" />
     <MESSAGE value="fix The first working ploter. had to change back to Repository and to update &quot;for mod in commit.modified_files&quot;" />
     <MESSAGE value="Add per-file analysis with SLoC and refactoring ratio, update MetricsExtractor paths and configuration." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add per-file analysis with SLoC and refactoring ratio, update MetricsExtractor paths and configuration." />
+    <MESSAGE value="Enhance MetricsExtractor with refactoring churn analysis, improve SLoC computation, and update visualization for cumulative and hotspot metrics." />
+    <option name="LAST_COMMIT_MESSAGE" value="Enhance MetricsExtractor with refactoring churn analysis, improve SLoC computation, and update visualization for cumulative and hotspot metrics." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PythonProject$TestPydriller.coverage" NAME="TestPydriller Coverage Results" MODIFIED="1752135664758" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/PythonProject$MetricsExtractor.coverage" NAME="MetricsExtractor Coverage Results" MODIFIED="1752681759471" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/PythonProject$MetricsExtractor.coverage" NAME="MetricsExtractor Coverage Results" MODIFIED="1752761031036" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>

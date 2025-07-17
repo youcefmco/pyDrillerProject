@@ -1,5 +1,8 @@
 import os
+from datetime import datetime
+
 from pydriller import Repository, ModificationType
+from pydriller.metrics.process.change_set import ChangeSet # ADD THIS
 import matplotlib.pyplot as plt
 import pandas as pd
 from pydriller.metrics.process.change_set import ChangeSet
@@ -10,7 +13,7 @@ CONFIG = {
     # Path to your local Git repository
 
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
-    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
+     #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
     # The folder containing the auto-generated code you want to analyze
     # "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
@@ -18,7 +21,7 @@ CONFIG = {
     # Main branch to analyze
     "BRANCH": "master",
     # ADD THIS: List of file extensions to include in the analysis
-    "TARGET_EXTENSIONS": [".c", ".h", ".java", ".hpp", ".di", ".uml", ".notation", ".genmodel"],
+    "TARGET_EXTENSIONS": [".c", ".h",".java", ".hpp", ".di", ".uml", ".notation", ".genmodel"],
     # Keywords to classify commits. Case-insensitive.
     "COMMIT_KEYWORDS": {
         "feat": ["feat", "feature"],
@@ -79,25 +82,22 @@ def analyze_repository():
     print("🚀 Starting repository analysis...")
 
     # --- Data Collection Variables ---
-    # This new dictionary will store all metrics per file
     file_metrics = {}
-    # total_churn = 0
     commit_counts = {key: 0 for key in CONFIG["COMMIT_KEYWORDS"]}
     commit_counts["other"] = 0
+    commit_sizes = []
     chronological_data = []
 
-    # Use the more specific 'modified_files' attribute from pydriller
+    # --- Instantiate Repository Miner ---
     repo_miner = Repository(
         CONFIG["REPO_PATH"],
         only_in_branch=CONFIG["BRANCH"]
-        # only_in_path=CONFIG["TARGET_FOLDER"]
     )
 
     for commit in repo_miner.traverse_commits():
         commit_classified = False
-        # commit_churn = 0
 
-        # Classify commit
+        # --- 1. Classify commit message --
         msg = commit.msg.lower()
         for key, keywords in CONFIG["COMMIT_KEYWORDS"].items():
             if any(keyword in msg for keyword in keywords):
@@ -107,44 +107,26 @@ def analyze_repository():
         if not commit_classified:
             commit_counts["other"] += 1
 
-        # # Calculate churn within the target folder
-        # total_commit_refactoring_churn = 0
-        # for mod in commit.modified_files:
-        #     # Ensure we are only looking at files within the target folder
-        #     if mod.new_path:  # and mod.new_path.startswith(CONFIG["TARGET_FOLDER"])
-        #         current_churn = mod.added_lines + mod.deleted_lines
-        #         total_churn += current_churn
-        #         commit_churn += current_churn
-        #
-        #         # Track churn per file (hotspots)
-        #         churn_by_file[mod.new_path] = churn_by_file.get(mod.new_path, 0) + current_churn
+        # --- 2. Calculate Change Set Size manually ---
+        size = len(commit.modified_files)  # Calculate size directly from modified files
+        commit_sizes.append(size)
 
-        # Calculate churn per file
+        # --- 3. Calculate churn per file
         total_commit_refactoring_churn = 0
         for mod in commit.modified_files:
-            # Check if the file matches our target folder and extensions
             if (mod.new_path and
-                    # mod.new_path.startswith(CONFIG["TARGET_FOLDER"]) and
                     mod.new_path.endswith(tuple(CONFIG["TARGET_EXTENSIONS"]))):
 
-                # Ensure file entry exists in our dictionary
                 if mod.new_path not in file_metrics:
                     file_metrics[mod.new_path] = {'creation_churn': 0, 'refactoring_churn': 0, 'sloc': 0, 'ratio': 0}
 
                 current_churn = mod.added_lines + mod.deleted_lines
 
-                # This is the KEY LOGIC: Separate creation from modification
                 if mod.change_type == ModificationType.ADD:
                     file_metrics[mod.new_path]['creation_churn'] += current_churn
-                else:  # MODIFY, RENAME, DELETE, etc. are all considered refactoring
-                    # Track churn per file (hotspots)
+                else:
                     file_metrics[mod.new_path]['refactoring_churn'] += current_churn
                     total_commit_refactoring_churn += current_churn
-
-                    #churn_by_file[mod.new_path] = churn_by_file.get(mod.new_path, 0) + current_churn
-                # file_metrics[mod.new_path]['churn'] += current_churn
-                # commit_churn += current_churn
-                # total_churn += current_churn
 
         chronological_data.append({
             "date": commit.committer_date,
@@ -156,41 +138,27 @@ def analyze_repository():
     # --- Calculate Current SLoC for tracked files ---
     repo_root = CONFIG["REPO_PATH"]
     for path, data in file_metrics.items():
-        # We only calculate SLoC for files that had churn
         full_path = os.path.join(repo_root, path)
-
         if os.path.exists(full_path):
             data['sloc'] = count_sloc(full_path)
-       # else:
-            # File was deleted, so its SLoC is 0
-            #data['sloc'] = 0
-        # Calculate the meaningful refactoring ratio per-file ratio
         if data['sloc'] > 0:
             data['ratio'] = data['refactoring_churn'] / data['sloc']
 
-    # --- Final Metric Calculations (Overall and Per-File) ---
+    # --- Final Metric Calculations ---
     total_sloc = sum(data['sloc'] for data in file_metrics.values())
     total_refactoring_churn = sum(data['refactoring_churn'] for data in file_metrics.values())
     overall_ratio = total_refactoring_churn / total_sloc if total_sloc > 0 else 0
-
-    # Calculate per-file ratio
-    # for data in file_metrics.values():
-    #     if data['sloc'] > 0:
-    #         data['ratio'] = data['refactoring_churn'] / data['sloc']
 
     results = {
         "total_sloc": total_sloc,
         "total_refactoring_churn": total_refactoring_churn,
         "refactoring_ratio": overall_ratio,
         "commit_counts": commit_counts,
-        #"churn_by_file": churn_by_file,
         "file_metrics": file_metrics,
         "chronological_data": chronological_data
     }
 
     return results
-
-
 def print_summary(results):
     """Prints a formatted summary including per-file metrics."""
     print("\n" + "=" * 60)
