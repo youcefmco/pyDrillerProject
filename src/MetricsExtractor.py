@@ -13,8 +13,8 @@ CONFIG = {
     # Path to your local Git repository
 
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
-     #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
-    "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
+     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
+    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
     # The folder containing the auto-generated code you want to analyze
     # "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
     "TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
@@ -111,7 +111,7 @@ def analyze_repository():
         size = len(commit.modified_files)  # Calculate size directly from modified files
         commit_sizes.append(size)
 
-        # --- 3. Calculate churn per file
+        # --- 2. Calculate churn per file
         total_commit_refactoring_churn = 0
         for mod in commit.modified_files:
             if (mod.new_path and
@@ -128,6 +128,7 @@ def analyze_repository():
                     file_metrics[mod.new_path]['refactoring_churn'] += current_churn
                     total_commit_refactoring_churn += current_churn
 
+        #commit_sizes.append(size)
         chronological_data.append({
             "date": commit.committer_date,
             "refactoring_churn": total_commit_refactoring_churn
@@ -155,7 +156,8 @@ def analyze_repository():
         "refactoring_ratio": overall_ratio,
         "commit_counts": commit_counts,
         "file_metrics": file_metrics,
-        "chronological_data": chronological_data
+        "chronological_data": chronological_data,
+        "commit_sizes": commit_sizes,
     }
 
     return results
@@ -190,6 +192,12 @@ def print_summary(results):
             ratio_str = f"{data['ratio']:.2%}"
             print(f"{path:<60} {ratio_str:<10} {data['refactoring_churn']:,<10} {data['sloc']:,<10}")
     print("=" * 60)
+
+    print("\n--- Change Set Analysis (Manual Effort Scope) ---")
+    if results['commit_sizes']:
+        avg_size = sum(results['commit_sizes']) / len(results['commit_sizes'])
+        print(f"Average files per  commit: {avg_size:.2f}")
+
 
 
 def create_plots(results):
@@ -248,7 +256,7 @@ def create_plots(results):
             plt.savefig('file_hotspots.png')
             print("\nSaved 'file_hotspots.png'")
 
-    # --- NEW Plot: Top 5 Files by Refactoring Ratio ---
+    # --- NEW Plot: Top 4 Files by Refactoring Ratio ---
     file_metrics = results.get('file_metrics', {})
     if file_metrics:
         hotspots_df = pd.DataFrame.from_dict(file_metrics, orient='index')
@@ -266,6 +274,24 @@ def create_plots(results):
             plt.savefig('refactoring_ratio_hotspots.png')
             print("\nSaved 'refactoring_ratio_hotspots.png'")
 
+    # --- NEW Plot: Change Set Size Distribution ---
+    commit_sizes = results.get('commit_sizes', [])
+
+    if commit_sizes :
+        plt.figure(figsize=(10, 6))
+        data_to_plot = []
+        labels = []
+
+        data_to_plot.append(commit_sizes)
+        labels.append(f"Fix Commits (avg {sum(commit_sizes) / len(commit_sizes):.1f})")
+
+
+        plt.boxplot(data_to_plot, vert=False, labels=labels)
+        plt.title('Distribution of Manual Commit Sizes (Change Set)', fontsize=16, fontweight='bold')
+        plt.xlabel('Number of Files Modified in a Single Commit')
+        plt.tight_layout()
+        plt.savefig('change_set_distribution.png')
+        print("\nSaved 'change_set_distribution.png'")
 
     plt.show()
 
