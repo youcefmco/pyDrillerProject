@@ -85,8 +85,9 @@ def analyze_repository():
     file_metrics = {}
     commit_counts = {key: 0 for key in CONFIG["COMMIT_KEYWORDS"]}
     commit_counts["other"] = 0
-    commit_sizes = []
+    change_set_size  = []
     chronological_data = []
+    commit_impact_data = []
 
     # --- Instantiate Repository Miner ---
     repo_miner = Repository(
@@ -95,21 +96,16 @@ def analyze_repository():
     )
 
     for commit in repo_miner.traverse_commits():
-        commit_classified = False
-
         # --- 1. Classify commit message --
+        commit_type = "other"  # Default type
         msg = commit.msg.lower()
         for key, keywords in CONFIG["COMMIT_KEYWORDS"].items():
             if any(keyword in msg for keyword in keywords):
                 commit_counts[key] += 1
-                commit_classified = True
+                commit_type = key
                 break
-        if not commit_classified:
+        if commit_type == "other":
             commit_counts["other"] += 1
-
-        # --- 2. Calculate Change Set Size manually ---
-        size = len(commit.modified_files)  # Calculate size directly from modified files
-        commit_sizes.append(size)
 
         # --- 2. Calculate churn per file
         total_commit_refactoring_churn = 0
@@ -127,8 +123,20 @@ def analyze_repository():
                 else:
                     file_metrics[mod.new_path]['refactoring_churn'] += current_churn
                     total_commit_refactoring_churn += current_churn
+        # --- 3. Calculate Change Set Size manually ---
+        size = len(commit.modified_files)  # Calculate size directly from modified files
+        change_set_size.append(size)
 
-        #commit_sizes.append(size)
+        # --- 3. Store the data for plotting ---
+        # Only store data for commits that actually had churn in the target folder
+        if total_commit_refactoring_churn > 0:
+            commit_impact_data.append({
+                "size": change_set_size,
+                "churn": total_commit_refactoring_churn,
+                "type": commit_type
+            })
+
+        #change_set_size .append(size)
         chronological_data.append({
             "date": commit.committer_date,
             "refactoring_churn": total_commit_refactoring_churn
@@ -157,7 +165,7 @@ def analyze_repository():
         "commit_counts": commit_counts,
         "file_metrics": file_metrics,
         "chronological_data": chronological_data,
-        "commit_sizes": commit_sizes,
+        "commit_impact_data": commit_impact_data # Add the new data
     }
 
     return results
@@ -194,8 +202,8 @@ def print_summary(results):
     print("=" * 60)
 
     print("\n--- Change Set Analysis (Manual Effort Scope) ---")
-    if results['commit_sizes']:
-        avg_size = sum(results['commit_sizes']) / len(results['commit_sizes'])
+    if results['commit_impact_data']:
+        avg_size = sum(results['commit_impact_data']['size']) / len(results['commit_impact_data'])
         print(f"Average files per  commit: {avg_size:.2f}")
 
 
@@ -274,24 +282,36 @@ def create_plots(results):
             plt.savefig('refactoring_ratio_hotspots.png')
             print("\nSaved 'refactoring_ratio_hotspots.png'")
 
-    # --- NEW Plot: Change Set Size Distribution ---
-    commit_sizes = results.get('commit_sizes', [])
+    impact_data = results.get('commit_impact_data', [])
+    if impact_data:
+        df = pd.DataFrame(impact_data)
 
-    if commit_sizes :
-        plt.figure(figsize=(10, 6))
-        data_to_plot = []
-        labels = []
+        plt.figure(figsize=(12, 8))
 
-        data_to_plot.append(commit_sizes)
-        labels.append(f"Fix Commits (avg {sum(commit_sizes) / len(commit_sizes):.1f})")
+        # Define colors for each commit type
+        colors = {'fix': 'red', 'refactor': 'orange', 'feat': 'green', 'other': 'gray'}
 
+        # Plot each group with a different color
+        for commit_type, group in df.groupby('type'):
+            plt.scatter(
+                group['size'],
+                group['churn'],
+                alpha=0.6,
+                c=colors.get(commit_type, 'blue'),
+                label=commit_type
+            )
 
-        plt.boxplot(data_to_plot, vert=False, labels=labels)
-        plt.title('Distribution of Manual Commit Sizes (Change Set)', fontsize=16, fontweight='bold')
-        plt.xlabel('Number of Files Modified in a Single Commit')
+        plt.title('Commit Impact Analysis', fontsize=16, fontweight='bold')
+        plt.xlabel('Change Set Size (Number of Files in Commit)')
+        plt.ylabel('Commit Churn (Lines Added + Deleted)')
+        plt.legend()
+        plt.grid(True)
+        # Use a log scale if you have extreme outliers (common with regeneration)
+        plt.xscale('log')
+        plt.yscale('log')
         plt.tight_layout()
-        plt.savefig('change_set_distribution.png')
-        print("\nSaved 'change_set_distribution.png'")
+        plt.savefig('commit_impact_plot.png')
+        print("\nSaved 'commit_impact_plot.png'")
 
     plt.show()
 
