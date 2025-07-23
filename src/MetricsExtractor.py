@@ -85,7 +85,7 @@ def analyze_repository():
     file_metrics = {}
     commit_counts = {key: 0 for key in CONFIG["COMMIT_KEYWORDS"]}
     commit_counts["other"] = 0
-    change_set_size  = []
+    #change_set_size  = []
     chronological_data = []
     commit_impact_data = []
 
@@ -124,8 +124,8 @@ def analyze_repository():
                     file_metrics[mod.new_path]['refactoring_churn'] += current_churn
                     total_commit_refactoring_churn += current_churn
         # --- 3. Calculate Change Set Size manually ---
-        size = len(commit.modified_files)  # Calculate size directly from modified files
-        change_set_size.append(size)
+        change_set_size = len(commit.modified_files)  # Calculate change_set_size directly from modified files
+        #change_set_size.append(change_set_size)
 
         # --- 3. Store the data for plotting ---
         # Only store data for commits that actually had churn in the target folder
@@ -136,7 +136,7 @@ def analyze_repository():
                 "type": commit_type
             })
 
-        #change_set_size .append(size)
+        #change_set_size .append(change_set_size)
         chronological_data.append({
             "date": commit.committer_date,
             "refactoring_churn": total_commit_refactoring_churn
@@ -170,7 +170,30 @@ def analyze_repository():
 
     return results
 def print_summary(results):
-    """Prints a formatted summary including per-file metrics."""
+    """
+    Prints a detailed summary of the analysis results in a formatted style to the console.
+
+    This function generates a comprehensive report that includes overall metrics, commit
+    classification, top files based on refactoring ratio, and a change set analysis. The report
+    is printed directly to the console for quick review and diagnostic purposes.
+
+    :param results: A dictionary containing analysis data with the following potential keys:
+        - `total_sloc` (int): Total source lines of code in the repository being analyzed.
+        - `total_refactoring_churn` (int): Total lines added and deleted (post-creation).
+        - `refactoring_ratio` (float): Overall refactoring ratio calculated as (churn / SLoC).
+        - `commit_counts` (dict): Counts of commits categorized by their type, where keys are the
+          classification names, and values are the respective counts (int).
+        - `file_metrics` (dict): Detailed analysis of individual files. Keys are file paths (str),
+          and values are dictionaries with metrics such as:
+             - `sloc` (int): Source lines of code.
+             - `refactoring_churn` (int): Refactoring churn for the file.
+             - `ratio` (float): Refactoring ratio for the file.
+        - `commit_impact_data` (list): A list of dictionaries, where each dictionary details the
+          size of a commit in terms of affected files (`size`, int). This is used for computing
+          the average files changed per commit.
+
+    :return: None
+    """
     print("\n" + "=" * 60)
     print("📊 MBD GIT ANALYSIS REPORT")
     print("=" * 60)
@@ -203,9 +226,11 @@ def print_summary(results):
 
     print("\n--- Change Set Analysis (Manual Effort Scope) ---")
     if results['commit_impact_data']:
-        avg_size = sum(results['commit_impact_data']['size']) / len(results['commit_impact_data'])
+        #number_of_items = len(results['commit_impact_data'])
+        #print(f"Number of items in commit_impact_data: {number_of_items}")
+        #Calculate the average change set = the sum  of impacted files per commit / sum of commits
+        avg_size = sum(entry['size'] for entry in results['commit_impact_data']) / len(results['commit_impact_data'])
         print(f"Average files per  commit: {avg_size:.2f}")
-
 
 
 def create_plots(results):

@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="56ce3b7f-9d77-4c9e-b400-ca50186f8d31" name="Changes" comment="Update MetricsExtractor to include change set size analysis, average file modifications per commit, and commit size distribution visualization: adding the PLOT which is still buggy">
+    <list default="true" id="56ce3b7f-9d77-4c9e-b400-ca50186f8d31" name="Changes" comment="Refactor MetricsExtractor to calculate change set size and commit impact data, update related plots with scatter visualization for size vs. churn.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MetricsExtractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/MetricsExtractor.py" afterDir="false" />
     </list>
@@ -92,7 +92,7 @@
       <updated>1752056317321</updated>
       <workItem from="1752056317480" duration="393000" />
       <workItem from="1752070910575" duration="9466000" />
-      <workItem from="1752419682195" duration="57115000" />
+      <workItem from="1752419682195" duration="62101000" />
     </task>
     <task id="LOCAL-00001" summary="my first pydriller project">
       <option name="closed" value="true" />
@@ -166,7 +166,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752768666476</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Refactor MetricsExtractor to calculate change set size and commit impact data, update related plots with scatter visualization for size vs. churn.">
+      <option name="closed" value="true" />
+      <created>1753198967314</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1753198967314</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -180,11 +188,12 @@
     <MESSAGE value="Enhance MetricsExtractor with refactoring churn analysis, improve SLoC computation, and update visualization for cumulative and hotspot metrics." />
     <MESSAGE value="Refactor MetricsExtractor to include manual change &quot;set size&quot; calculation, optimize churn computation, and clean up unused logic." />
     <MESSAGE value="Update MetricsExtractor to include change set size analysis, average file modifications per commit, and commit size distribution visualization: adding the PLOT which is still buggy" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update MetricsExtractor to include change set size analysis, average file modifications per commit, and commit size distribution visualization: adding the PLOT which is still buggy" />
+    <MESSAGE value="Refactor MetricsExtractor to calculate change set size and commit impact data, update related plots with scatter visualization for size vs. churn." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor MetricsExtractor to calculate change set size and commit impact data, update related plots with scatter visualization for size vs. churn." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PythonProject$MetricsExtractor2.coverage" NAME="MetricsExtractor2 Coverage Results" MODIFIED="1753195408232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/PythonProject$TestPydriller.coverage" NAME="TestPydriller Coverage Results" MODIFIED="1752135664758" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/PythonProject$MetricsExtractor.coverage" NAME="MetricsExtractor Coverage Results" MODIFIED="1753198790415" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/PythonProject$MetricsExtractor.coverage" NAME="MetricsExtractor Coverage Results" MODIFIED="1753265685014" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>
