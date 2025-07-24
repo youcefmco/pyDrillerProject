@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 
 from pydriller import Repository, ModificationType
-from pydriller.metrics.process.change_set import ChangeSet # ADD THIS
+from pydriller.metrics.process.change_set import ChangeSet  # ADD THIS
 import matplotlib.pyplot as plt
 import pandas as pd
 from pydriller.metrics.process.change_set import ChangeSet
@@ -11,17 +11,18 @@ from pydriller.metrics.process.change_set import ChangeSet
 # Step 1: Configure these variables for your project
 CONFIG = {
     # Path to your local Git repository
-
-    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
-     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
-    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
+    "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History",
+    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
+    # 00a3b5029284c007fc86806aea8551137749f0c8 to remove
+    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
+    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
     # The folder containing the auto-generated code you want to analyze
     # "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
     "TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
     # Main branch to analyze
     "BRANCH": "master",
     # ADD THIS: List of file extensions to include in the analysis
-    "TARGET_EXTENSIONS": [".c", ".h",".java", ".hpp", ".di", ".uml", ".notation", ".genmodel"],
+    "TARGET_EXTENSIONS": [".c", ".h", ".java", ".hpp", ".di", ".uml", ".notation", ".genmodel"],
     # Keywords to classify commits. Case-insensitive.
     "COMMIT_KEYWORDS": {
         "feat": ["feat", "feature"],
@@ -85,7 +86,7 @@ def analyze_repository():
     file_metrics = {}
     commit_counts = {key: 0 for key in CONFIG["COMMIT_KEYWORDS"]}
     commit_counts["other"] = 0
-    #change_set_size  = []
+    # change_set_size  = []
     chronological_data = []
     commit_impact_data = []
 
@@ -125,7 +126,7 @@ def analyze_repository():
                     total_commit_refactoring_churn += current_churn
         # --- 3. Calculate Change Set Size manually ---
         change_set_size = len(commit.modified_files)  # Calculate change_set_size directly from modified files
-        #change_set_size.append(change_set_size)
+        # change_set_size.append(change_set_size)
 
         # --- 3. Store the data for plotting ---
         # Only store data for commits that actually had churn in the target folder
@@ -136,7 +137,7 @@ def analyze_repository():
                 "type": commit_type
             })
 
-        #change_set_size .append(change_set_size)
+        # change_set_size .append(change_set_size)
         chronological_data.append({
             "date": commit.committer_date,
             "refactoring_churn": total_commit_refactoring_churn
@@ -165,10 +166,12 @@ def analyze_repository():
         "commit_counts": commit_counts,
         "file_metrics": file_metrics,
         "chronological_data": chronological_data,
-        "commit_impact_data": commit_impact_data # Add the new data
+        "commit_impact_data": commit_impact_data  # Add the new data
     }
 
     return results
+
+
 def print_summary(results):
     """
     Prints a detailed summary of the analysis results in a formatted style to the console.
@@ -226,9 +229,9 @@ def print_summary(results):
 
     print("\n--- Change Set Analysis (Manual Effort Scope) ---")
     if results['commit_impact_data']:
-        #number_of_items = len(results['commit_impact_data'])
-        #print(f"Number of items in commit_impact_data: {number_of_items}")
-        #Calculate the average change set = the sum  of impacted files per commit / sum of commits
+        # number_of_items = len(results['commit_impact_data'])
+        # print(f"Number of items in commit_impact_data: {number_of_items}")
+        # Calculate the average change set = the sum  of impacted files per commit / sum of commits
         avg_size = sum(entry['size'] for entry in results['commit_impact_data']) / len(results['commit_impact_data'])
         print(f"Average files per  commit: {avg_size:.2f}")
 
@@ -275,7 +278,8 @@ def create_plots(results):
     file_metrics = results.get('file_metrics', {})
     if file_metrics:
         hotspots_df = pd.DataFrame.from_dict(file_metrics, orient='index')
-        hotspots_df = hotspots_df[hotspots_df['refactoring_churn'] > 0].sort_values('refactoring_churn', ascending=False).head(10)
+        hotspots_df = hotspots_df[hotspots_df['refactoring_churn'] > 0].sort_values('refactoring_churn',
+                                                                                    ascending=False).head(10)
 
         if not hotspots_df.empty:
             plt.figure(figsize=(12, 8))
@@ -284,7 +288,7 @@ def create_plots(results):
             plt.xlabel('Total Lines of refactoring_churn (Added + Deleted)')
             plt.ylabel('File Path')
             # Format x-axis as percentage
-            #plt.gca().xaxis.set_major_formatter(plt.FuncFormatter('{:.0%}'.format))
+            # plt.gca().xaxis.set_major_formatter(plt.FuncFormatter('{:.0%}'.format))
             plt.tight_layout()
             plt.savefig('file_hotspots.png')
             print("\nSaved 'file_hotspots.png'")
