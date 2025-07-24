@@ -13,7 +13,6 @@ CONFIG = {
     # Path to your local Git repository
     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History",
     #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
-    # 00a3b5029284c007fc86806aea8551137749f0c8 to remove
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
     # The folder containing the auto-generated code you want to analyze
