@@ -11,10 +11,10 @@ from pydriller.metrics.process.change_set import ChangeSet
 # Step 1: Configure these variables for your project
 CONFIG = {
     # Path to your local Git repository
-    "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History",
+    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History",
     #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
-    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
+     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
     # The folder containing the auto-generated code you want to analyze
     # "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
     "TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
@@ -29,7 +29,15 @@ CONFIG = {
         "refactor": ["refactor", "restructure", "rework"],
         "chore": ["chore", "build", "ci"],
         "docs": ["docs", "documentation"]
-    }
+    },
+    # ADD THIS: List of SHAs to exclude from the analysis
+    "EXCLUDE_COMMIT_SHAS": [
+        "d1182c504c64e2680f19474eab7f8297a3d4ec81",  # trying to get dliver event to stop fot the timer
+        #"3d3ca6b06accca0ad0f6c68d9901730af09ac48e", #first commit
+        "411bf3c5c4a68467286266fe53090b1ca5259c88" #removing java profile
+
+        # Add more SHAs as needed
+    ]
 }
 
 
@@ -96,6 +104,10 @@ def analyze_repository():
     )
 
     for commit in repo_miner.traverse_commits():
+        # ←––––– Drop unwanted commits right away
+        if commit.hash in CONFIG["EXCLUDE_COMMIT_SHAS"]:
+            print("one is here")
+            continue
         # --- 1. Classify commit message --
         commit_type = "other"  # Default type
         msg = commit.msg.lower()
@@ -112,16 +124,19 @@ def analyze_repository():
         for mod in commit.modified_files:
             if (mod.new_path and
                     mod.new_path.endswith(tuple(CONFIG["TARGET_EXTENSIONS"]))):
+                # Splitting and joining the tail components : BasicActiv... RTP\AOCS_Process_Shell.java → AOCS_RTP\AOCS_Process_Shell.java
+                new_path = os.sep.join(mod.new_path.split(os.sep)[-2:])
+                #new_path = mod.new_path
 
-                if mod.new_path not in file_metrics:
-                    file_metrics[mod.new_path] = {'creation_churn': 0, 'refactoring_churn': 0, 'sloc': 0, 'ratio': 0}
+                if new_path not in file_metrics:
+                    file_metrics[new_path] = {'creation_churn': 0, 'refactoring_churn': 0, 'sloc': 0, 'ratio': 0}
 
                 current_churn = mod.added_lines + mod.deleted_lines
 
                 if mod.change_type == ModificationType.ADD:
-                    file_metrics[mod.new_path]['creation_churn'] += current_churn
+                    file_metrics[new_path]['creation_churn'] += current_churn
                 else:
-                    file_metrics[mod.new_path]['refactoring_churn'] += current_churn
+                    file_metrics[new_path]['refactoring_churn'] += current_churn
                     total_commit_refactoring_churn += current_churn
         # --- 3. Calculate Change Set Size manually ---
         change_set_size = len(commit.modified_files)  # Calculate change_set_size directly from modified files
@@ -341,7 +356,7 @@ def create_plots(results):
         plt.savefig('commit_impact_plot.png')
         print("\nSaved 'commit_impact_plot.png'")
 
-    plt.show()
+    #plt.show()
 
 
 if __name__ == "__main__":
