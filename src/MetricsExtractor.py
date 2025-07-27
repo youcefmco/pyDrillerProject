@@ -124,19 +124,16 @@ def analyze_repository():
         for mod in commit.modified_files:
             if (mod.new_path and
                     mod.new_path.endswith(tuple(CONFIG["TARGET_EXTENSIONS"]))):
-                # Splitting and joining the tail components : BasicActiv... RTP\AOCS_Process_Shell.java → AOCS_RTP\AOCS_Process_Shell.java
-                new_path = os.sep.join(mod.new_path.split(os.sep)[-2:])
-                #new_path = mod.new_path
 
-                if new_path not in file_metrics:
-                    file_metrics[new_path] = {'creation_churn': 0, 'refactoring_churn': 0, 'sloc': 0, 'ratio': 0}
+                if mod.new_path not in file_metrics:
+                    file_metrics[mod.new_path] = {'creation_churn': 0, 'refactoring_churn': 0, 'sloc': 0, 'ratio': 0}
 
                 current_churn = mod.added_lines + mod.deleted_lines
 
                 if mod.change_type == ModificationType.ADD:
-                    file_metrics[new_path]['creation_churn'] += current_churn
+                    file_metrics[mod.new_path]['creation_churn'] += current_churn
                 else:
-                    file_metrics[new_path]['refactoring_churn'] += current_churn
+                    file_metrics[mod.new_path]['refactoring_churn'] += current_churn
                     total_commit_refactoring_churn += current_churn
         # --- 3. Calculate Change Set Size manually ---
         change_set_size = len(commit.modified_files)  # Calculate change_set_size directly from modified files
@@ -296,6 +293,11 @@ def create_plots(results):
                                                                                     ascending=False).head(10)
 
         if not hotspots_df.empty:
+            # 💡 NEW: Shorten the file paths for better readability on the plot
+            # This takes each path in the index and rebuilds it with only the parent folder and filename.
+            hotspots_df.index = hotspots_df.index.map(
+                lambda p: os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p))
+            )
             plt.figure(figsize=(12, 8))
             hotspots_df['refactoring_churn'].sort_values().plot(kind='barh', color='skyblue')
             plt.title('Top 10 "Hotspot" Files by refactoring churn', fontsize=16, fontweight='bold')
@@ -314,6 +316,11 @@ def create_plots(results):
         hotspots_df = hotspots_df[hotspots_df['ratio'] > 0].sort_values('ratio', ascending=False).head(5)
 
         if not hotspots_df.empty:
+            # 💡 NEW: Shorten the file paths for better readability on the plot
+            # This takes each path in the index and rebuilds it with only the parent folder and filename.
+            hotspots_df.index = hotspots_df.index.map(
+                lambda p: os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p))
+            )
             plt.figure(figsize=(12, 8))
             hotspots_df['ratio'].sort_values().plot(kind='barh', color='coral')
             plt.title('Top 5 Files by Refactoring Ratio (R. Churn/SLoC)', fontsize=16, fontweight='bold')
