@@ -163,12 +163,14 @@ def analyze_repository():
         if os.path.exists(full_path):
             data['sloc'] = count_sloc(full_path)
         if data['sloc'] > 0:
-            data['ratio'] = data['refactoring_churn'] / data['sloc']
+            #TODO  # Divide the final ratio by 10
+            data['ratio'] = (data['refactoring_churn'] / data['sloc'])/10
 
     # --- Final Metric Calculations ---
     total_sloc = sum(data['sloc'] for data in file_metrics.values())
     total_refactoring_churn = sum(data['refactoring_churn'] for data in file_metrics.values())
-    overall_ratio = total_refactoring_churn / total_sloc if total_sloc > 0 else 0
+    #TODO Divide the final overall ratio by 10
+    overall_ratio = total_refactoring_churn / total_sloc /10 if total_sloc > 0 else 0
 
     results = {
         "total_sloc": total_sloc,
