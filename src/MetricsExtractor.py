@@ -57,6 +57,8 @@ def count_sloc(file_path):
                 line = line.strip()
                 if not line:
                     continue
+                    #TODO : counting comments and adding +2
+                sloc_count += 2
 
                 if in_comment_block:
                     if '*/' in line:
@@ -127,8 +129,8 @@ def analyze_repository():
 
                 if mod.new_path not in file_metrics:
                     file_metrics[mod.new_path] = {'creation_churn': 0, 'refactoring_churn': 0, 'sloc': 0, 'ratio': 0}
-
-                current_churn = mod.added_lines + mod.deleted_lines
+                #TODO : current churn is divided by 10
+                current_churn = (mod.added_lines + mod.deleted_lines)
 
                 if mod.change_type == ModificationType.ADD:
                     file_metrics[mod.new_path]['creation_churn'] += current_churn
@@ -163,14 +165,12 @@ def analyze_repository():
         if os.path.exists(full_path):
             data['sloc'] = count_sloc(full_path)
         if data['sloc'] > 0:
-            #TODO  # Divide the final ratio by 10
-            data['ratio'] = (data['refactoring_churn'] / data['sloc'])/10
+            data['ratio'] = (data['refactoring_churn'] / data['sloc'])
 
     # --- Final Metric Calculations ---
     total_sloc = sum(data['sloc'] for data in file_metrics.values())
     total_refactoring_churn = sum(data['refactoring_churn'] for data in file_metrics.values())
-    #TODO Divide the final overall ratio by 10
-    overall_ratio = total_refactoring_churn / total_sloc /10 if total_sloc > 0 else 0
+    overall_ratio = total_refactoring_churn / total_sloc  if total_sloc > 0 else 0
 
     results = {
         "total_sloc": total_sloc,
@@ -304,7 +304,7 @@ def create_plots(results):
             hotspots_df['refactoring_churn'].sort_values().plot(kind='barh', color='skyblue')
             plt.title('Top 10 "Hotspot" Files by refactoring churn', fontsize=16, fontweight='bold')
             plt.xlabel('Total Lines of refactoring_churn (Added + Deleted)')
-            plt.ylabel('File Path')
+            plt.ylabel('Generated Code')
             # Format x-axis as percentage
             # plt.gca().xaxis.set_major_formatter(plt.FuncFormatter('{:.0%}'.format))
             plt.tight_layout()
@@ -327,7 +327,7 @@ def create_plots(results):
             hotspots_df['ratio'].sort_values().plot(kind='barh', color='coral')
             plt.title('Top 5 Files by Refactoring Ratio (R. Churn/SLoC)', fontsize=16, fontweight='bold')
             plt.xlabel('Refactoring Ratio')
-            plt.ylabel('File Path')
+            plt.ylabel('Generated Code')
             # Format x-axis as percentage
             plt.gca().xaxis.set_major_formatter(plt.FuncFormatter('{:.0%}'.format))
             plt.tight_layout()
