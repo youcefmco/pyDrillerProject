@@ -21,7 +21,7 @@ CONFIG = {
     # Main branch to analyze
     "BRANCH": "master",
     # ADD THIS: List of file extensions to include in the analysis
-    "TARGET_EXTENSIONS": [".c", ".h", ".java", ".hpp", ".di", ".uml", ".notation", ".genmodel"],
+    "TARGET_EXTENSIONS": [".java", ".hpp", ".di", ".uml", ".notation", ".genmodel"],#".c", ".h",
     # Keywords to classify commits. Case-insensitive.
     "COMMIT_KEYWORDS": {
         "feat": ["feat", "feature"],
@@ -222,7 +222,7 @@ def print_summary(results):
         if count > 0:
             print(f"  - {key.capitalize():<10}: {count} commits")
 
-    print("\n--- Top 5 Files by Refactoring Ratio (Churn/SLoC) ---")
+    print("\n--- Top 10 Files by Refactoring Ratio (Churn/SLoC) ---")
     # Sort files by refactoring ratio, descending
     sorted_files = sorted(
         results['file_metrics'].items(),
@@ -235,7 +235,7 @@ def print_summary(results):
     else:
         print(f"{'File':<60} {'Ratio':<10} {'Refactor Churn':<15} {'SLoC':<10}")
         print("-" * 90)
-        for path, data in sorted_files[:5]:
+        for path, data in sorted_files[:10]:
             ratio_str = f"{data['ratio']:.2%}"
             print(f"{path:<60} {ratio_str:<10} {data['refactoring_churn']:,<10} {data['sloc']:,<10}")
     print("=" * 60)
@@ -330,6 +330,8 @@ def create_plots(results):
             plt.ylabel('Generated Code')
             # Format x-axis as percentage
             plt.gca().xaxis.set_major_formatter(plt.FuncFormatter('{:.0%}'.format))
+            # ADD THIS LINE to set the x-axis limit from 0% to 100%
+            plt.xlim(0, 1.0)
             plt.tight_layout()
             plt.savefig('refactoring_ratio_hotspots.png')
             print("\nSaved 'refactoring_ratio_hotspots.png'")
