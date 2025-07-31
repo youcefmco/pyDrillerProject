@@ -11,17 +11,17 @@ from pydriller.metrics.process.change_set import ChangeSet
 # Step 1: Configure these variables for your project
 CONFIG = {
     # Path to your local Git repository
-    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History",
-    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
+     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History",
+    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
-     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
+    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
     # The folder containing the auto-generated code you want to analyze
     # "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
     "TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
     # Main branch to analyze
     "BRANCH": "master",
     # ADD THIS: List of file extensions to include in the analysis
-    "TARGET_EXTENSIONS": [".java", ".hpp", ".di", ".uml", ".notation", ".genmodel"],#".c", ".h",
+    "TARGET_EXTENSIONS": [ ".uml", ".notation"],  # ".c", ".h",".java", ".hpp", ".genmodel",".di",
     # Keywords to classify commits. Case-insensitive.
     "COMMIT_KEYWORDS": {
         "feat": ["feat", "feature"],
@@ -33,8 +33,8 @@ CONFIG = {
     # ADD THIS: List of SHAs to exclude from the analysis
     "EXCLUDE_COMMIT_SHAS": [
         "d1182c504c64e2680f19474eab7f8297a3d4ec81",  # trying to get dliver event to stop fot the timer
-        #"3d3ca6b06accca0ad0f6c68d9901730af09ac48e", #first commit
-        "411bf3c5c4a68467286266fe53090b1ca5259c88" #removing java profile
+        # "3d3ca6b06accca0ad0f6c68d9901730af09ac48e", #first commit
+        "411bf3c5c4a68467286266fe53090b1ca5259c88"  # removing java profile
 
         # Add more SHAs as needed
     ]
@@ -57,7 +57,7 @@ def count_sloc(file_path):
                 line = line.strip()
                 if not line:
                     continue
-                    #TODO : counting comments and adding +2
+                # TODO : counting comments and adding +2
                 sloc_count += 2
 
                 if in_comment_block:
@@ -129,7 +129,7 @@ def analyze_repository():
 
                 if mod.new_path not in file_metrics:
                     file_metrics[mod.new_path] = {'creation_churn': 0, 'refactoring_churn': 0, 'sloc': 0, 'ratio': 0}
-                #TODO : current churn is divided by 10
+                # TODO : current churn is divided by 10 (WEHN Needed)
                 current_churn = (mod.added_lines + mod.deleted_lines)
 
                 if mod.change_type == ModificationType.ADD:
@@ -170,7 +170,7 @@ def analyze_repository():
     # --- Final Metric Calculations ---
     total_sloc = sum(data['sloc'] for data in file_metrics.values())
     total_refactoring_churn = sum(data['refactoring_churn'] for data in file_metrics.values())
-    overall_ratio = total_refactoring_churn / total_sloc  if total_sloc > 0 else 0
+    overall_ratio = total_refactoring_churn / total_sloc if total_sloc > 0 else 0
 
     results = {
         "total_sloc": total_sloc,
@@ -367,7 +367,7 @@ def create_plots(results):
         plt.savefig('commit_impact_plot.png')
         print("\nSaved 'commit_impact_plot.png'")
 
-    #plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
