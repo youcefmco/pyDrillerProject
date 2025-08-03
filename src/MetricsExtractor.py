@@ -10,18 +10,18 @@ from pydriller.metrics.process.change_set import ChangeSet
 # --- CONFIGURATION ---
 # Step 1: Configure these variables for your project
 CONFIG = {
-    # Path to your local Git repository
-     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History",
+    # PAIR of: Path to your local Git repository & "TARGET_EXTENSIONS
+    "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History", "TARGET_EXTENSIONS": [".uml"],
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
-    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/",
-    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
+    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/","TARGET_EXTENSIONS": [ ".c", ".h",".java"],
+    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
     # The folder containing the auto-generated code you want to analyze
     # "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
     "TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
     # Main branch to analyze
     "BRANCH": "master",
     # ADD THIS: List of file extensions to include in the analysis
-    "TARGET_EXTENSIONS": [ ".uml", ".notation"],  # ".c", ".h",".java", ".hpp", ".genmodel",".di",
+    # "TARGET_EXTENSIONS": [ ".uml"],  # ".c", ".h",".java", ".hpp", ".genmodel",".di", ".notation"
     # Keywords to classify commits. Case-insensitive.
     "COMMIT_KEYWORDS": {
         "feat": ["feat", "feature"],
@@ -57,7 +57,7 @@ def count_sloc(file_path):
                 line = line.strip()
                 if not line:
                     continue
-                # TODO : counting comments and adding +2
+                # TODO : counting comments and adding +2 SLOC
                 sloc_count += 2
 
                 if in_comment_block:
@@ -130,7 +130,7 @@ def analyze_repository():
                 if mod.new_path not in file_metrics:
                     file_metrics[mod.new_path] = {'creation_churn': 0, 'refactoring_churn': 0, 'sloc': 0, 'ratio': 0}
                 # TODO : current churn is divided by 10 (WEHN Needed)
-                current_churn = (mod.added_lines + mod.deleted_lines)
+                current_churn = (mod.added_lines + mod.deleted_lines)//10
 
                 if mod.change_type == ModificationType.ADD:
                     file_metrics[mod.new_path]['creation_churn'] += current_churn
