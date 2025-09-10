@@ -339,8 +339,36 @@ def create_plots(results):
     impact_data = results.get('commit_impact_data', [])
     if impact_data:
         df = pd.DataFrame(impact_data)
+        #NORMAL SIZE
+        # plt.figure(figsize=(12, 8))
+        #
+        # # Define colors for each commit type
+        # colors = {'fix': 'red', 'refactor': 'orange', 'feat': 'green', 'other': 'gray'}
+        #
+        # # Plot each group with a different color
+        # for commit_type, group in df.groupby('type'):
+        #     plt.scatter(
+        #         group['size'],
+        #         group['churn'],
+        #         alpha=0.6,
+        #         c=colors.get(commit_type, 'blue'),
+        #         label=commit_type
+        #     )
+        #
+        # plt.title('Commit Impact Analysis', fontsize=22, fontweight='bold')
+        # plt.xlabel('Change Set Size (Number of Files in Commit)')
+        # plt.ylabel('Commit Churn (Lines Added + Deleted)')
+        # plt.legend()
+        # plt.grid(True)
+        # # Use a log scale if you have extreme outliers (common with regeneration)
+        # plt.xscale('log')
+        # plt.yscale('log')
+        # plt.tight_layout()
+        # plt.savefig('commit_impact_plot.png')
+        # print("\nSaved 'commit_impact_plot.png'")
 
-        plt.figure(figsize=(12, 8))
+        #A0 SIZE
+        plt.figure(figsize=(14, 10))  # Bigger for poster clarity
 
         # Define colors for each commit type
         colors = {'fix': 'red', 'refactor': 'orange', 'feat': 'green', 'other': 'gray'}
@@ -350,24 +378,28 @@ def create_plots(results):
             plt.scatter(
                 group['size'],
                 group['churn'],
-                alpha=0.6,
+                alpha=0.7,
+                s=80,  # Increase dot size for visibility
                 c=colors.get(commit_type, 'blue'),
                 label=commit_type
             )
 
-        plt.title('Commit Impact Analysis', fontsize=16, fontweight='bold')
-        plt.xlabel('Change Set Size (Number of Files in Commit)')
-        plt.ylabel('Commit Churn (Lines Added + Deleted)')
-        plt.legend()
-        plt.grid(True)
-        # Use a log scale if you have extreme outliers (common with regeneration)
+        # No title
+        plt.xlabel('Change Set Size (Files per Commit)', fontsize=22, fontweight='bold')
+        plt.ylabel('Commit Churn (Lines Added + Deleted)', fontsize=22, fontweight='bold')
+
+        plt.legend(fontsize=18, markerscale=1.5)
+        plt.grid(True, alpha=0.3)
+
+        # Use log scale for readability
         plt.xscale('log')
         plt.yscale('log')
-        plt.tight_layout()
-        plt.savefig('commit_impact_plot.png')
-        print("\nSaved 'commit_impact_plot.png'")
 
-    # plt.show()
+        plt.tight_layout()
+        plt.savefig("commit_impact_plot.svg", format="svg")  # SVG for poster
+        print("\nSaved 'commit_impact_plot.svg'")
+
+        plt.show()
 
 
 if __name__ == "__main__":
