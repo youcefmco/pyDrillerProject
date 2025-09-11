@@ -5,16 +5,17 @@ from pydriller import Repository, ModificationType
 from pydriller.metrics.process.change_set import ChangeSet  # ADD THIS
 import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.dates as mdates
 from pydriller.metrics.process.change_set import ChangeSet
 
 # --- CONFIGURATION ---
 # Step 1: Configure these variables for your project
 CONFIG = {
     # PAIR of: Path to your local Git repository & "TARGET_EXTENSIONS
-    "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History", "TARGET_EXTENSIONS": [".uml"],
+    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History", "TARGET_EXTENSIONS": [".uml"],
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
-    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/","TARGET_EXTENSIONS": [ ".c", ".h",".java"],
-    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/",
+    # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/"
+     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/","TARGET_EXTENSIONS": [ ".c", ".h",".java"],
     # The folder containing the auto-generated code you want to analyze
     # "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
     "TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
@@ -258,58 +259,172 @@ def create_plots(results):
     plt.style.use('seaborn-v0_8-whitegrid')
 
     # --- Plot 1: Commit Classification (Pie Chart) ---
+
+    # NORMAL SIZE
+
+    # commit_df = pd.DataFrame.from_dict(
+    #     results['commit_counts'], orient='index', columns=['count']
+    # ).sort_values('count', ascending=False)
+    # commit_df = commit_df[commit_df['count'] > 0]
+    #
+    # plt.figure(figsize=(10, 7))
+    # plt.pie(commit_df['count'], labels=commit_df.index, autopct='%1.1f%%', startangle=140)
+    # plt.title('Commit Classification by Type', fontsize=16, fontweight='bold')
+    # plt.ylabel('')  # Hides the 'count' label on the y-axis
+    # plt.tight_layout()
+    # plt.savefig('commit_classification_pie.png')
+    # print("Saved 'commit_classification_pie.png'")
+    #
+    # # --- Plot 2: Cumulative Churn Over Time (Line Chart) ---
+    # if results['chronological_data']:
+    #     chrono_df = pd.DataFrame(results['chronological_data'])
+    #     chrono_df = chrono_df.sort_values('date')
+    #     chrono_df['cumulative_refactoring_churn'] = chrono_df['refactoring_churn'].cumsum()
+    #
+    #     plt.figure(figsize=(12, 6))
+    #     plt.plot(chrono_df['date'], chrono_df['cumulative_refactoring_churn'], marker='o', linestyle='-', markersize=4)
+    #     plt.title('Cumulative Code Churn in Generated Code Over Time', fontsize=16, fontweight='bold')
+    #     plt.xlabel('Date')
+    #     plt.ylabel('Cumulative Lines of Churn (Added + Deleted)')
+    #     plt.grid(True)
+    #     plt.tight_layout()
+    #     plt.savefig('cumulative_churn.png')
+    #     print("Saved 'cumulative_churn.png'")
+
+    #A0 SIZE
+    # --- Plot 1: Commit Classification (Pie Chart) ---
     commit_df = pd.DataFrame.from_dict(
         results['commit_counts'], orient='index', columns=['count']
     ).sort_values('count', ascending=False)
     commit_df = commit_df[commit_df['count'] > 0]
 
-    plt.figure(figsize=(10, 7))
-    plt.pie(commit_df['count'], labels=commit_df.index, autopct='%1.1f%%', startangle=140)
-    plt.title('Commit Classification by Type', fontsize=16, fontweight='bold')
-    plt.ylabel('')  # Hides the 'count' label on the y-axis
-    plt.tight_layout()
-    plt.savefig('commit_classification_pie.png')
-    print("Saved 'commit_classification_pie.png'")
+    if not commit_df.empty:
+        plt.figure(figsize=(14, 14))  # Large square for poster
+        wedges, texts, autotexts = plt.pie(
+            commit_df['count'],
+            labels=None,  # legend instead of inline labels
+            autopct='%1.1f%%',
+            startangle=140,
+            pctdistance=0.75,
+            wedgeprops={'linewidth': 0.5, 'edgecolor': 'white'}
+        )
+
+        # Style text sizes
+        for at in autotexts:
+            at.set_fontsize(24)
+
+        plt.legend(
+            wedges,
+            commit_df.index,
+            title="Commit Type",
+            loc="center left",
+            bbox_to_anchor=(1.05, 0.5),
+            fontsize=22,
+            frameon=False
+        )
+
+        plt.axis("equal")  # keep pie circular
+        plt.tight_layout()
+        plt.savefig("commit_classification_pie.svg", format="svg")
+        plt.savefig("commit_classification_pie.png", dpi=300)
+        plt.close()
+        print("Saved commit_classification_pie.svg and PNG")
 
     # --- Plot 2: Cumulative Churn Over Time (Line Chart) ---
     if results['chronological_data']:
         chrono_df = pd.DataFrame(results['chronological_data'])
-        chrono_df = chrono_df.sort_values('date')
-        chrono_df['cumulative_refactoring_churn'] = chrono_df['refactoring_churn'].cumsum()
+        chrono_df = chrono_df.sort_values("date")
+        chrono_df["cumulative_refactoring_churn"] = chrono_df["refactoring_churn"].cumsum()
 
-        plt.figure(figsize=(12, 6))
-        plt.plot(chrono_df['date'], chrono_df['cumulative_refactoring_churn'], marker='o', linestyle='-', markersize=4)
-        plt.title('Cumulative Code Churn in Generated Code Over Time', fontsize=16, fontweight='bold')
-        plt.xlabel('Date')
-        plt.ylabel('Cumulative Lines of Churn (Added + Deleted)')
-        plt.grid(True)
+        fig, ax = plt.subplots(figsize=(20, 10))  # Wide for poster
+        ax.plot(
+            chrono_df["date"],
+            chrono_df["cumulative_refactoring_churn"],
+            marker="o",
+            linestyle="-",
+            linewidth=3,
+            markersize=8
+        )
+
+        ax.set_xlabel("Date", fontsize=28, fontweight="bold")
+        ax.set_ylabel("Cumulative Lines of Churn (Added + Deleted)", fontsize=28, fontweight="bold")
+
+        # Format x-axis dates
+        ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+        ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(mdates.AutoDateLocator()))
+        plt.setp(ax.get_xticklabels(), rotation=30, ha="right", fontsize=22)
+        plt.setp(ax.get_yticklabels(), fontsize=22)
+
+        ax.grid(True, alpha=0.3)
         plt.tight_layout()
-        plt.savefig('cumulative_churn.png')
-        print("Saved 'cumulative_churn.png'")
+
+        fig.savefig("cumulative_churn.svg", format="svg")
+        fig.savefig("cumulative_churn.png", dpi=300)
+        plt.close(fig)
+        print("Saved cumulative_churn.svg and PNG")
 
     #  --- Plot 3: File Hotspots (Bar Chart) ---
+    # NORMAL SIZE
+    # file_metrics = results.get('file_metrics', {})
+    # if file_metrics:
+    #     hotspots_df = pd.DataFrame.from_dict(file_metrics, orient='index')
+    #     hotspots_df = hotspots_df[hotspots_df['refactoring_churn'] > 0].sort_values('refactoring_churn',
+    #                                                                                 ascending=False).head(10)
+    #
+    #     if not hotspots_df.empty:
+    #         # 💡 NEW: Shorten the file paths for better readability on the plot
+    #         # This takes each path in the index and rebuilds it with only the parent folder and filename.
+    #         hotspots_df.index = hotspots_df.index.map(
+    #             lambda p: os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p))
+    #         )
+    #         plt.figure(figsize=(12, 8))
+    #         hotspots_df['refactoring_churn'].sort_values().plot(kind='barh', color='skyblue')
+    #         plt.title('Top 10 "Hotspot" Files by refactoring churn', fontsize=16, fontweight='bold')
+    #         plt.xlabel('Total Lines of refactoring_churn (Added + Deleted)')
+    #         plt.ylabel('Generated Code')
+    #         # Format x-axis as percentage
+    #         # plt.gca().xaxis.set_major_formatter(plt.FuncFormatter('{:.0%}'.format))
+    #         plt.tight_layout()
+    #         plt.savefig('file_hotspots.png')
+    #         print("\nSaved 'file_hotspots.png'")
+
+    #A0 SIZE
+    # --- Plot 3: File Hotspots (Bar Chart) ---
     file_metrics = results.get('file_metrics', {})
     if file_metrics:
         hotspots_df = pd.DataFrame.from_dict(file_metrics, orient='index')
-        hotspots_df = hotspots_df[hotspots_df['refactoring_churn'] > 0].sort_values('refactoring_churn',
-                                                                                    ascending=False).head(10)
+        hotspots_df = hotspots_df[hotspots_df['refactoring_churn'] > 0] \
+            .sort_values('refactoring_churn', ascending=False) \
+            .head(10)
 
         if not hotspots_df.empty:
-            # 💡 NEW: Shorten the file paths for better readability on the plot
-            # This takes each path in the index and rebuilds it with only the parent folder and filename.
+            # Shorten paths -> keep only parent folder + filename
             hotspots_df.index = hotspots_df.index.map(
-                lambda p: os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p))
+                #lambda p: os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p))
+                #Removing the file extension
+                lambda p: os.path.splitext(os.path.basename(p))[0]
             )
-            plt.figure(figsize=(12, 8))
-            hotspots_df['refactoring_churn'].sort_values().plot(kind='barh', color='skyblue')
-            plt.title('Top 10 "Hotspot" Files by refactoring churn', fontsize=16, fontweight='bold')
-            plt.xlabel('Total Lines of refactoring_churn (Added + Deleted)')
-            plt.ylabel('Generated Code')
-            # Format x-axis as percentage
-            # plt.gca().xaxis.set_major_formatter(plt.FuncFormatter('{:.0%}'.format))
+
+            plt.figure(figsize=(18, 10))  # large for poster
+            ax = hotspots_df['refactoring_churn'].sort_values().plot(
+                kind='barh',
+                color='skyblue',
+                edgecolor='black'
+            )
+
+            # Axis labels (no title)
+            ax.set_xlabel("Total Lines of Refactoring Churn (Added + Deleted)", fontsize=26, fontweight="bold")
+            ax.set_ylabel("File", fontsize=26, fontweight="bold")
+
+            # Tick label size
+            plt.xticks(fontsize=28)
+            plt.yticks(fontsize=28)
+
             plt.tight_layout()
-            plt.savefig('file_hotspots.png')
-            print("\nSaved 'file_hotspots.png'")
+            plt.savefig("file_hotspots.svg", format="svg")
+            plt.savefig("file_hotspots.png", dpi=300)
+            plt.close()
+            print("Saved file_hotspots.svg and PNG")
 
     # --- NEW Plot: Top 4 Files by Refactoring Ratio ---
     file_metrics = results.get('file_metrics', {})
@@ -321,7 +436,8 @@ def create_plots(results):
             # 💡 NEW: Shorten the file paths for better readability on the plot
             # This takes each path in the index and rebuilds it with only the parent folder and filename.
             hotspots_df.index = hotspots_df.index.map(
-                lambda p: os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p))
+                #lambda p: os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p))
+                lambda p: os.path.basename(p)
             )
             plt.figure(figsize=(12, 8))
             hotspots_df['ratio'].sort_values().plot(kind='barh', color='coral')
@@ -340,35 +456,7 @@ def create_plots(results):
     if impact_data:
         df = pd.DataFrame(impact_data)
         #NORMAL SIZE
-        # plt.figure(figsize=(12, 8))
-        #
-        # # Define colors for each commit type
-        # colors = {'fix': 'red', 'refactor': 'orange', 'feat': 'green', 'other': 'gray'}
-        #
-        # # Plot each group with a different color
-        # for commit_type, group in df.groupby('type'):
-        #     plt.scatter(
-        #         group['size'],
-        #         group['churn'],
-        #         alpha=0.6,
-        #         c=colors.get(commit_type, 'blue'),
-        #         label=commit_type
-        #     )
-        #
-        # plt.title('Commit Impact Analysis', fontsize=22, fontweight='bold')
-        # plt.xlabel('Change Set Size (Number of Files in Commit)')
-        # plt.ylabel('Commit Churn (Lines Added + Deleted)')
-        # plt.legend()
-        # plt.grid(True)
-        # # Use a log scale if you have extreme outliers (common with regeneration)
-        # plt.xscale('log')
-        # plt.yscale('log')
-        # plt.tight_layout()
-        # plt.savefig('commit_impact_plot.png')
-        # print("\nSaved 'commit_impact_plot.png'")
-
-        #A0 SIZE
-        plt.figure(figsize=(14, 10))  # Bigger for poster clarity
+        plt.figure(figsize=(12, 8))
 
         # Define colors for each commit type
         colors = {'fix': 'red', 'refactor': 'orange', 'feat': 'green', 'other': 'gray'}
@@ -378,28 +466,56 @@ def create_plots(results):
             plt.scatter(
                 group['size'],
                 group['churn'],
-                alpha=0.7,
-                s=80,  # Increase dot size for visibility
+                alpha=0.6,
                 c=colors.get(commit_type, 'blue'),
                 label=commit_type
             )
 
-        # No title
-        plt.xlabel('Change Set Size (Files per Commit)', fontsize=22, fontweight='bold')
-        plt.ylabel('Commit Churn (Lines Added + Deleted)', fontsize=22, fontweight='bold')
-
-        plt.legend(fontsize=18, markerscale=1.5)
-        plt.grid(True, alpha=0.3)
-
-        # Use log scale for readability
+        plt.title('Commit Impact Analysis', fontsize=22, fontweight='bold')
+        plt.xlabel('Change Set Size (Number of Files in Commit)')
+        plt.ylabel('Commit Churn (Lines Added + Deleted)')
+        plt.legend()
+        plt.grid(True)
+        # Use a log scale if you have extreme outliers (common with regeneration)
         plt.xscale('log')
         plt.yscale('log')
-
         plt.tight_layout()
-        plt.savefig("commit_impact_plot.svg", format="svg")  # SVG for poster
-        print("\nSaved 'commit_impact_plot.svg'")
+        plt.savefig('commit_impact_plot.png')
+        print("\nSaved 'commit_impact_plot.png'")
 
-        plt.show()
+        #A0 SIZE
+        # plt.figure(figsize=(14, 10))  # Bigger for poster clarity
+        #
+        # # Define colors for each commit type
+        # colors = {'fix': 'red', 'refactor': 'orange', 'feat': 'green', 'other': 'gray'}
+        #
+        # # Plot each group with a different color
+        # for commit_type, group in df.groupby('type'):
+        #     plt.scatter(
+        #         group['size'],
+        #         group['churn'],
+        #         alpha=0.7,
+        #         s=80,  # Increase dot size for visibility
+        #         c=colors.get(commit_type, 'blue'),
+        #         label=commit_type
+        #     )
+        #
+        # # No title
+        # plt.xlabel('Change Set Size (Files per Commit)', fontsize=22, fontweight='bold')
+        # plt.ylabel('Commit Churn (Lines Added + Deleted)', fontsize=22, fontweight='bold')
+        #
+        # plt.legend(fontsize=18, markerscale=1.5)
+        # plt.grid(True, alpha=0.3)
+        #
+        # # Use log scale for readability
+        # plt.xscale('log')
+        # plt.yscale('log')
+        #
+        # plt.tight_layout()
+        # plt.savefig("commit_impact_plot.svg", format="svg")  # SVG for poster
+        # print("\nSaved 'commit_impact_plot.svg'")
+        #
+        # plt.show()
 
 
 if __name__ == "__main__":
