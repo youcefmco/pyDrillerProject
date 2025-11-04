@@ -6,6 +6,7 @@ from pydriller.metrics.process.change_set import ChangeSet  # ADD THIS
 import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.dates as mdates
+import matplotlib.ticker as mtick
 from pydriller.metrics.process.change_set import ChangeSet
 
 # --- CONFIGURATION ---
@@ -431,26 +432,65 @@ def create_plots(results):
     if file_metrics:
         hotspots_df = pd.DataFrame.from_dict(file_metrics, orient='index')
         hotspots_df = hotspots_df[hotspots_df['ratio'] > 0].sort_values('ratio', ascending=False).head(5)
+    # NORMAL SIZE
+    #     if not hotspots_df.empty:
+    #         # 💡 NEW: Shorten the file paths for better readability on the plot
+    #         # This takes each path in the index and rebuilds it with only the parent folder and filename.
+    #         hotspots_df.index = hotspots_df.index.map(
+    #             #lambda p: os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p))
+    #             lambda p: os.path.basename(p)
+    #         )
+    #         plt.figure(figsize=(12, 8))
+    #         hotspots_df['ratio'].sort_values().plot(kind='barh', color='coral')
+    #         plt.title('Top 5 Files by Refactoring Ratio (R. Churn/SLoC)', fontsize=16, fontweight='bold')
+    #         plt.xlabel('Refactoring Ratio')
+    #         plt.ylabel('Generated Code')
+    #         # Format x-axis as percentage
+    #         plt.gca().xaxis.set_major_formatter(plt.FuncFormatter('{:.0%}'.format))
+    #         # ADD THIS LINE to set the x-axis limit from 0% to 100%
+    #         plt.xlim(0, 1.0)
+    #         plt.tight_layout()
+    #         plt.savefig('refactoring_ratio_hotspots.png')
+    #         print("\nSaved 'refactoring_ratio_hotspots.png'")
 
-        if not hotspots_df.empty:
-            # 💡 NEW: Shorten the file paths for better readability on the plot
-            # This takes each path in the index and rebuilds it with only the parent folder and filename.
-            hotspots_df.index = hotspots_df.index.map(
-                #lambda p: os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p))
-                lambda p: os.path.basename(p)
-            )
-            plt.figure(figsize=(12, 8))
-            hotspots_df['ratio'].sort_values().plot(kind='barh', color='coral')
-            plt.title('Top 5 Files by Refactoring Ratio (R. Churn/SLoC)', fontsize=16, fontweight='bold')
-            plt.xlabel('Refactoring Ratio')
-            plt.ylabel('Generated Code')
-            # Format x-axis as percentage
-            plt.gca().xaxis.set_major_formatter(plt.FuncFormatter('{:.0%}'.format))
-            # ADD THIS LINE to set the x-axis limit from 0% to 100%
-            plt.xlim(0, 1.0)
-            plt.tight_layout()
-            plt.savefig('refactoring_ratio_hotspots.png')
-            print("\nSaved 'refactoring_ratio_hotspots.png'")
+    # A0 SIZE
+    if not hotspots_df.empty:
+        # Keep only the filename without extension for clarity on the plot
+        hotspots_df.index = hotspots_df.index.map(
+            lambda p: os.path.splitext(os.path.basename(p))[0]
+        )
+        # If you prefer "parent/file" without extension, use:
+        # hotspots_df.index = hotspots_df.index.map(
+        #     lambda p: os.path.join(os.path.basename(os.path.dirname(p)),
+        #                            os.path.splitext(os.path.basename(p))[0])
+        # )
+
+        # Poster-friendly figure size
+        fig, ax = plt.subplots(figsize=(18, 10))
+
+        # Horizontal bar chart (sorted ascending for nice layout)
+        series = hotspots_df['ratio'].sort_values()
+        series.plot(kind='barh', ax=ax, color='coral', edgecolor='black')
+
+        # Labels (no title)
+        ax.set_xlabel("Refactoring Ratio (Churn / SLoC)", fontsize=28, fontweight='bold')
+        ax.set_ylabel("File", fontsize=28, fontweight='bold')
+
+        # Format x-axis as percent (0% to 100%)
+        ax.xaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0))
+        ax.set_xlim(0, 1.0)
+
+        # Ticks font sizes
+        ax.tick_params(axis='x', labelsize=22)
+        ax.tick_params(axis='y', labelsize=22)
+
+        ax.grid(axis='x', alpha=0.25)
+
+        plt.tight_layout()
+        fig.savefig("refactoring_ratio_hotspots.svg", format="svg")
+        fig.savefig("refactoring_ratio_hotspots.png", dpi=300)
+        plt.close(fig)
+        print("Saved 'refactoring_ratio_hotspots.svg' and PNG")
 
     impact_data = results.get('commit_impact_data', [])
     if impact_data:
