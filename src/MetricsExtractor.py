@@ -16,10 +16,10 @@ CONFIG = {
     #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History", "TARGET_EXTENSIONS": [".uml"],
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/"
-     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project/","TARGET_EXTENSIONS": [ ".c", ".h",".java"],
+     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project-For-PyDrill/","TARGET_EXTENSIONS": [".java"],
     # The folder containing the auto-generated code you want to analyze
-    # "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
-    "TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
+     "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
+    #"TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
     # Main branch to analyze
     "BRANCH": "master",
     # ADD THIS: List of file extensions to include in the analysis
@@ -131,8 +131,8 @@ def analyze_repository():
 
                 if mod.new_path not in file_metrics:
                     file_metrics[mod.new_path] = {'creation_churn': 0, 'refactoring_churn': 0, 'sloc': 0, 'ratio': 0}
-                # TODO : current churn is divided by 10 (WEHN Needed)
-                current_churn = (mod.added_lines + mod.deleted_lines)//10
+                # TODO : current churn is divided by 10 (WEHN Needed) //10 when calculating commit of the UML model
+                current_churn = (mod.added_lines + mod.deleted_lines)
 
                 if mod.change_type == ModificationType.ADD:
                     file_metrics[mod.new_path]['creation_churn'] += current_churn
