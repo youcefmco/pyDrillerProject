@@ -13,12 +13,12 @@ from pydriller.metrics.process.change_set import ChangeSet
 # Step 1: Configure these variables for your project
 CONFIG = {
     # PAIR of: Path to your local Git repository & "TARGET_EXTENSIONS
-    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History", "TARGET_EXTENSIONS": [".uml"],
+    #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History", "TARGET_EXTENSIONS": [".uml"],# SOURCE FOR UML CUMULATIVE
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/"
-     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project-For-PyDrill/","TARGET_EXTENSIONS": [".java"],
+     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project-For-PyDrill/","TARGET_EXTENSIONS": [".java"],# SOURCE FOR JAVA CODE
     # The folder containing the auto-generated code you want to analyze
-     "TARGET_FOLDER": "/BasicActiveObjectExample/",#rc/generated-code/
+     "TARGET_FOLDER": "BasicActiveObjectExemple/null/AOCS_RTP/",#rc/generated-code/
     #"TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
     # Main branch to analyze
     "BRANCH": "master",
@@ -100,6 +100,11 @@ def analyze_repository():
     # change_set_size  = []
     chronological_data = []
     commit_impact_data = []
+    # Directory based filter
+    # Ensure trailing slash for safe prefix matching
+    TARGET_FOLDER = CONFIG["TARGET_FOLDER"].strip("/")
+    TARGET_FOLDER = TARGET_FOLDER + "/"
+    print("target folder is " + TARGET_FOLDER)
 
     # --- Instantiate Repository Miner ---
     repo_miner = Repository(
@@ -126,6 +131,15 @@ def analyze_repository():
         # --- 2. Calculate churn per file
         total_commit_refactoring_churn = 0
         for mod in commit.modified_files:
+            # Skip deleted files (no new_path)
+            if not mod.new_path:
+                continue
+
+            file_path = mod.new_path.replace("\\", "/")  # safety normalization
+            # --- FILTER 1: target directory ---
+            if not file_path.startswith(TARGET_FOLDER):
+                continue
+            print("the file passed " + file_path)
             if (mod.new_path and
                     mod.new_path.endswith(tuple(CONFIG["TARGET_EXTENSIONS"]))):
 
@@ -420,6 +434,9 @@ def create_plots(results):
             )
 
             # Axis labels (no title)
+            # APLLY R Plots FORMATING
+            style_axes(ax)
+
             ax.set_xlabel("Total Lines of Refactoring Churn (Added + Deleted)", fontsize=26, fontweight="bold")
             ax.set_ylabel("File", fontsize=26, fontweight="bold")
 
@@ -437,7 +454,7 @@ def create_plots(results):
     file_metrics = results.get('file_metrics', {})
     if file_metrics:
         hotspots_df = pd.DataFrame.from_dict(file_metrics, orient='index')
-        hotspots_df = hotspots_df[hotspots_df['ratio'] > 0].sort_values('ratio', ascending=False).head(5)
+        hotspots_df = hotspots_df.sort_values('ratio', ascending=False).head(20)
     # NORMAL SIZE
     #     if not hotspots_df.empty:
     #         # 💡 NEW: Shorten the file paths for better readability on the plot
@@ -576,7 +593,6 @@ def create_plots(results):
         fig, ax = plt.subplots(figsize=(10, 12))  # Portrait/Square aspect ratio for 2 bars
 
 
-
         bars = ax.bar(
             comp_labels,
             comp_values,
@@ -606,8 +622,8 @@ def create_plots(results):
                 f'{height}',
                 ha='center',
                 va='bottom',
-                fontsize=36,
-                fontweight='bold',
+                fontsize=26,
+                #fontweight='bold',
                 color='black'
             )
 
