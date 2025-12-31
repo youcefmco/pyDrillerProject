@@ -59,7 +59,7 @@ def count_sloc(file_path):
                 line = line.strip()
                 if not line:
                     continue
-                # TODO : counting comments and adding +2 SLOC
+                # TODO : counting (including) comments and adding +2 SLOC
                 sloc_count += 2
 
                 if in_comment_block:
@@ -338,6 +338,9 @@ def create_plots(results):
         chrono_df["cumulative_refactoring_churn"] = chrono_df["refactoring_churn"].cumsum()
 
         fig, ax = plt.subplots(figsize=(20, 10))  # Wide for poster
+        ax.grid(True, linewidth=2.5, alpha=0.5)
+
+
         ax.plot(
             chrono_df["date"],
             chrono_df["cumulative_refactoring_churn"],
@@ -347,16 +350,19 @@ def create_plots(results):
             markersize=8
         )
 
+
         ax.set_xlabel("Date", fontsize=28, fontweight="bold")
-        ax.set_ylabel("Cumulative Lines of Churn (Added + Deleted)", fontsize=28, fontweight="bold")
+        ax.set_ylabel("Cumulative Lines of Churn", fontsize=28, fontweight="bold")
 
         # Format x-axis dates
         ax.xaxis.set_major_locator(mdates.AutoDateLocator())
         ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(mdates.AutoDateLocator()))
+        #APLLY R Plots FORMATING
+        style_axes(ax)
+
         plt.setp(ax.get_xticklabels(), rotation=30, ha="right", fontsize=22)
         plt.setp(ax.get_yticklabels(), fontsize=22)
 
-        ax.grid(True, alpha=0.3)
         plt.tight_layout()
 
         fig.savefig("cumulative_churn.svg", format="svg")
@@ -470,21 +476,24 @@ def create_plots(results):
 
         # Horizontal bar chart (sorted ascending for nice layout)
         series = hotspots_df['ratio'].sort_values()
-        series.plot(kind='barh', ax=ax, color='coral', edgecolor='black')
+        series.plot(kind='barh', ax=ax, color='skyblue', edgecolor='black') #color='coral'
 
         # Labels (no title)
-        ax.set_xlabel("Refactoring Ratio (Churn / SLoC)", fontsize=28, fontweight='bold')
-        ax.set_ylabel("File", fontsize=28, fontweight='bold')
+        ax.set_xlabel("Refactoring Ratio", fontsize=28, fontweight='bold')
+        ax.set_ylabel("Component", fontsize=28, fontweight='bold')
 
         # Format x-axis as percent (0% to 100%)
         ax.xaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0))
         ax.set_xlim(0, 1.0)
 
+        # APLLY R Plots FORMATING
+        style_axes(ax)
         # Ticks font sizes
         ax.tick_params(axis='x', labelsize=22)
         ax.tick_params(axis='y', labelsize=22)
 
         ax.grid(axis='x', alpha=0.25)
+
 
         plt.tight_layout()
         fig.savefig("refactoring_ratio_hotspots.svg", format="svg")
@@ -555,7 +564,112 @@ def create_plots(results):
         # plt.savefig("commit_impact_plot.svg", format="svg")  # SVG for poster
         # print("\nSaved 'commit_impact_plot.svg'")
         #
+
+        # --- NEW Plot 5: Reliability Comparison (Bar Chart) ---
+        # Data from Static Analysis (Manual vs Generated)
+        # We define this explicitly based on the text report data
+        comp_labels = ['Manual Code (MC)', 'Generated Code (GC)']
+        comp_values = [105, 8]
+        # Colors: 'tab:red' for Manual (High Risk), 'tab:green' for Generated (Safe)
+        comp_colors = ['skyblue', 'grey']
+
+        fig, ax = plt.subplots(figsize=(10, 12))  # Portrait/Square aspect ratio for 2 bars
+
+
+
+        bars = ax.bar(
+            comp_labels,
+            comp_values,
+            color=comp_colors,
+            edgecolor='black',
+            linewidth=2,
+            width=0.6  # Adjust bar width
+        )
+
+        # Y-Axis Label
+        ax.set_ylabel("Count of Reliability Issues", fontsize=28, fontweight='bold')
+
+        # Tick Sizes
+        ax.tick_params(axis='x', labelsize=26)
+        ax.tick_params(axis='y', labelsize=24)
+
+        # Grid styling
+        ax.grid(axis='y', linestyle='--', alpha=0.6)
+        ax.grid(axis='x', visible=False)  # Hide vertical grid lines
+
+        # Add the exact numbers on top of the bars
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height + 1,  # Position slightly above the bar
+                f'{height}',
+                ha='center',
+                va='bottom',
+                fontsize=36,
+                fontweight='bold',
+                color='black'
+            )
+
+        plt.tight_layout()
+        fig.savefig("reliability_comparison.svg", format="svg")
+        fig.savefig("reliability_comparison.png", dpi=300)
+        plt.close(fig)
+        print("Saved 'reliability_comparison.svg' and PNG")
         # plt.show()
+def style_axes(ax):
+    """
+    Apply publication-quality styling to a Matplotlib Axes.
+    Suitable for SCI / Thomson Reuters indexed journals.
+    """
+
+    # --- Black, bold frame (R / MATLAB-like) ---
+    for spine in ax.spines.values():
+        spine.set_linewidth(2.5)
+        spine.set_color("black")
+
+    # --- Ticks: bold, black, outward ---
+    ax.tick_params(
+        axis="both",
+        which="major",
+        direction="out",
+        width=2.5,
+        length=8,
+        color="black",
+        labelsize=12,
+        labelcolor="black"
+    )
+
+    ax.tick_params(
+        axis="both",
+        which="minor",
+        direction="out",
+        width=1.5,
+        length=4,
+        color="black"
+    )
+
+    # --- Grid: secondary visual element ---
+    ax.grid(
+        True,
+        which="major",
+        linewidth=2.5,
+        linestyle="-",
+        alpha=0.5
+    )
+
+    # --- Axis labels ---
+    #ax.xaxis.label.set_size(13)
+    #ax.yaxis.label.set_size(13)
+    ax.xaxis.label.set_color("black")
+    ax.yaxis.label.set_color("black")
+
+    # --- Title (if used) ---
+    if ax.title:
+        ax.title.set_size(14)
+        ax.title.set_color("black")
+
+    return ax
 
 
 if __name__ == "__main__":
