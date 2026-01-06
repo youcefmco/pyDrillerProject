@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 
 from pydriller import Repository, ModificationType
@@ -16,9 +17,9 @@ CONFIG = {
     #"REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-Combined-History", "TARGET_EXTENSIONS": [".uml"],# SOURCE FOR UML CUMULATIVE
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProjectFMU/",
     # "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/PapyrusProject/"
-     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project-For-PyDrill/","TARGET_EXTENSIONS": [".java"],# SOURCE FOR JAVA CODE
+     "REPO_PATH": "C:/Users/youce/OneDrive/Documents/GitHub/AOCS-project-For-PyDrill/","TARGET_EXTENSIONS": [".java"],# SOURCE FOR JAVA CODE  , ".h", ".c"
     # The folder containing the auto-generated code you want to analyze
-     "TARGET_FOLDER": "BasicActiveObjectExemple/null/AOCS_RTP/",#rc/generated-code/
+     "TARGET_FOLDER": "BasicActiveObjectExemple/null/AOCS_RTP/",#rc/generated-code/ --- null/AOCS_RTP/ REMOVE THIS iF YOU WANT TO GET +NLOC FROM USE CASE CODE
     #"TARGET_FOLDER": "/OBC750-AOCS-Shell-RTP/",  # rc/generated-code/
     # Main branch to analyze
     "BRANCH": "master",
@@ -59,8 +60,8 @@ def count_sloc(file_path):
                 line = line.strip()
                 if not line:
                     continue
-                # TODO : counting (including) comments and adding +2 SLOC
-                sloc_count += 2
+                # TODO : counting (including) all lignes and adding +2 SLOC
+                sloc_count += 1
 
                 if in_comment_block:
                     if '*/' in line:
@@ -78,9 +79,9 @@ def count_sloc(file_path):
                     else:
                         in_comment_block = True
                         continue
-
-                if line and not line.startswith(comment_prefixes):
-                    sloc_count += 1
+                #TODO: counting comment because CHURN count comment by removing: not line.startswith(comment_prefixes)
+                if line :#and not line.startswith(comment_prefixes)
+                    sloc_count += 3
     except (IOError, UnicodeDecodeError):
         return 0
     return sloc_count
@@ -139,7 +140,6 @@ def analyze_repository():
             # --- FILTER 1: target directory ---
             if not file_path.startswith(TARGET_FOLDER):
                 continue
-            print("the file passed " + file_path)
             if (mod.new_path and
                     mod.new_path.endswith(tuple(CONFIG["TARGET_EXTENSIONS"]))):
 
@@ -251,7 +251,7 @@ def print_summary(results):
     else:
         print(f"{'File':<60} {'Ratio':<10} {'Refactor Churn':<15} {'SLoC':<10}")
         print("-" * 90)
-        for path, data in sorted_files[:10]:
+        for path, data in sorted_files[:20]:
             ratio_str = f"{data['ratio']:.2%}"
             print(f"{path:<60} {ratio_str:<10} {data['refactoring_churn']:,<10} {data['sloc']:,<10}")
     print("=" * 60)
@@ -422,7 +422,7 @@ def create_plots(results):
             # Shorten paths -> keep only parent folder + filename
             hotspots_df.index = hotspots_df.index.map(
                 #lambda p: os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p))
-                #Removing the file extension
+                #Removing the file extension + # --- Normalize filename ---
                 lambda p: os.path.splitext(os.path.basename(p))[0]
             )
 
@@ -478,9 +478,11 @@ def create_plots(results):
 
     # A0 SIZE
     if not hotspots_df.empty:
-        # Keep only the filename without extension for clarity on the plot
+        # Shorten paths -> keep only filename (no extension) + normalize CamelCase
         hotspots_df.index = hotspots_df.index.map(
-            lambda p: os.path.splitext(os.path.basename(p))[0]
+            lambda p: normalize_filename_camelcase(
+                os.path.splitext(os.path.basename(p))[0]
+            )
         )
         # If you prefer "parent/file" without extension, use:
         # hotspots_df.index = hotspots_df.index.map(
@@ -686,7 +688,36 @@ def style_axes(ax):
         ax.title.set_color("black")
 
     return ax
+def normalize_filename_camelcase(name: str) -> str:
+    """
+    Normalize camelCase / PascalCase to Camel_Case
+    Preserve existing underscores and all-caps acronyms.
+    """
 
+    # Case 1: already normalized → keep as is
+    if "_" in name:
+        return name
+
+    # Case 2: fully uppercase (acronym) → keep as is
+    if name.isupper():
+        return name
+
+    # Case 3: split camelCase / PascalCase
+    parts = re.findall(
+        r'[A-Z]+(?=[A-Z][a-z])|'   # ARO in AROHandler
+        r'[A-Z]?[a-z]+|'           # normal words
+        r'[A-Z]+|'                 # trailing acronyms
+        r'\d+',                    # numbers
+        name
+    )
+
+    # Capitalize normal words, keep acronyms
+    normalized = [
+        p if p.isupper() else p.capitalize()
+        for p in parts
+    ]
+
+    return "_".join(normalized)
 
 if __name__ == "__main__":
     analysis_results = analyze_repository()
