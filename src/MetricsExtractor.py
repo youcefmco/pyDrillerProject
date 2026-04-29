@@ -476,7 +476,13 @@ def create_plots(results):
     #         plt.savefig('refactoring_ratio_hotspots.png')
     #         print("\nSaved 'refactoring_ratio_hotspots.png'")
 
-    # A0 SIZE
+    import pandas as pd
+    import os
+    import matplotlib.pyplot as plt
+    import matplotlib.ticker as mtick
+
+    # ... (Assuming your previous imports and style_axes function are here) ...
+
     if not hotspots_df.empty:
         # Shorten paths -> keep only filename (no extension) + normalize CamelCase
         hotspots_df.index = hotspots_df.index.map(
@@ -484,41 +490,50 @@ def create_plots(results):
                 os.path.splitext(os.path.basename(p))[0]
             )
         )
-        # If you prefer "parent/file" without extension, use:
-        # hotspots_df.index = hotspots_df.index.map(
-        #     lambda p: os.path.join(os.path.basename(os.path.dirname(p)),
-        #                            os.path.splitext(os.path.basename(p))[0])
-        # )
 
-        # Poster-friendly figure size
-        fig, ax = plt.subplots(figsize=(18, 10))
+        # Extract the ratio series and sort it for a clean layout (smallest to largest)
+        series_to_plot = hotspots_df['ratio'].sort_values()
 
-        # Horizontal bar chart (sorted ascending for nice layout)
-        series = hotspots_df['ratio'].sort_values()
-        series.plot(kind='barh', ax=ax, color='skyblue', edgecolor='black') #color='coral'
+        # ---------------------------------------------------------
+        # ACADEMIC PAPER OPTIMIZATIONS (Maximum Readability)
+        # ---------------------------------------------------------
+        # Reduced canvas size to 6x6. This is closer to the actual print size
+        # of a journal column, meaning less downscaling and larger text.
+        fig, ax = plt.subplots(figsize=(6, 6))
 
-        # Labels (no title)
-        ax.set_xlabel("Refactoring Ratio", fontsize=28, fontweight='bold')
-        ax.set_ylabel("Component", fontsize=28, fontweight='bold')
+        # Plot the series
+        series_to_plot.plot(kind='barh', ax=ax, color='skyblue', edgecolor='black')
+
+        # Bumping axis label fonts to 20 for maximum visibility
+        ax.set_xlabel("Refactoring Ratio", fontsize=20, fontweight='bold')
+        ax.set_ylabel("Component", fontsize=20, fontweight='bold')
 
         # Format x-axis as percent (0% to 100%)
         ax.xaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0))
         ax.set_xlim(0, 1.0)
 
-        # APLLY R Plots FORMATING
-        style_axes(ax)
-        # Ticks font sizes
-        ax.tick_params(axis='x', labelsize=22)
-        ax.tick_params(axis='y', labelsize=22)
+        # APPLY R Plots FORMATTING (If you have this function)
+        # style_axes(ax)
 
-        ax.grid(axis='x', alpha=0.25)
+        # Ticks font sizes cranked up
+        ax.tick_params(axis='x', labelsize=16)
+        # Y-axis increased to 14 so the component names are clearly readable
+        ax.tick_params(axis='y', labelsize=14)
 
+        # Add vertical gridlines behind the bars to make reading values easier
+        ax.grid(axis='x', linestyle='--', alpha=0.7)
+        ax.set_axisbelow(True)  # Ensure grid is behind the bars
 
         plt.tight_layout()
-        fig.savefig("refactoring_ratio_hotspots.svg", format="svg")
-        fig.savefig("refactoring_ratio_hotspots.png", dpi=300)
+
+        # bbox_inches='tight' is essential here because the large Y-axis text
+        # will push outside the standard 6x6 box. This command resizes the
+        # final image boundary to fit all the text perfectly.
+        fig.savefig("refactoring_ratio_hotspots.svg", format="svg", bbox_inches='tight')
+        fig.savefig("refactoring_ratio_hotspots.png", dpi=300, bbox_inches='tight')
         plt.close(fig)
-        print("Saved 'refactoring_ratio_hotspots.svg' and PNG")
+
+        print("Saved optimized 'refactoring_ratio_hotspots' with MAXIMUM TEXT SIZE.")
 
     impact_data = results.get('commit_impact_data', [])
     if impact_data:
